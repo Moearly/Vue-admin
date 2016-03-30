@@ -12,8 +12,15 @@ export default {
       // with hot-reload because the reloaded component
       // preserves its current state and we are modifying
       // its initial state.
-      msg: 'Hello World!'
+      msg: 'Hello 你是哦!'
     }
   }
 }
 </script>
+
+<style>
+  .hello{
+    color: gray;
+    height: 200px;
+  }
+</style>
