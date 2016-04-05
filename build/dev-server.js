@@ -1,47 +1,34 @@
-// 引入必要的模块
+var path = require('path')
 var express = require('express')
 var webpack = require('webpack')
-var config = require('./webpack.dev.config')
+var config = require('./webpack.dev.conf')
+var favicon = require('express-favicon')
 
-// 创建一个express实例
 var app = express()
-
-// 调用webpack并把配置传递过去
 var compiler = webpack(config)
+// 设置资源目录
+app.use('/static', express.static(path.join(__dirname, '../src')))
+app.use('/data', express.static(path.join(__dirname, '../src/data')))
+app.use('/img', express.static(path.join(__dirname, '../src/assets/img')))
 
-// 使用 webpack-dev-middleware 中间件
-var devMiddleware = require('webpack-dev-middleware')(compiler, {
-    publicPath: config.output.publicPath,
-    stats: {
-        colors: true,
-        chunks: false
-    }
-})
-
-var hotMiddleware = require('webpack-hot-middleware')(compiler)
-// force page reload when html-webpack-plugin template changes
-// console.log(compiler.plugin)
-compiler.plugin('compilation', function (compilation) {
-    compilation.plugin('html-webpack-plugin-after-emit', function (data, cb) {
-        // 发布事件
-        hotMiddleware.publish({ action: 'reload' })
-        cb()
-    })
-})
-
+app.use(favicon(path.join(__dirname, '../favicon.ico')))
 // handle fallback for HTML5 history API
-// app.use(require('connect-history-api-fallback')())
-// 注册中间件
-app.use(devMiddleware)
+app.use(require('connect-history-api-fallback')())
+
+// serve webpack bundle output
+app.use(require('webpack-dev-middleware')(compiler, {
+  noInfo: true,
+  publicPath: config.output.publicPath
+}))
+
 // enable hot-reload and state-preserving
 // compilation error display
-app.use(hotMiddleware)
+app.use(require('webpack-hot-middleware')(compiler))
 
-// 监听 8888端口，开启服务器
-app.listen(8888, function (err) {
-    if (err) {
-        console.log(err)
-        return
-    }
-    console.log('Listening at http://localhost:8888')
+app.listen(8000, '127.0.0.1', function(err) {
+  if (err) {
+    console.log(err)
+    return
+  }
+  console.log('Listening at http://127.0.0.1:8000')
 })
